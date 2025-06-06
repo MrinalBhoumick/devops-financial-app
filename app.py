@@ -6,19 +6,36 @@ import matplotlib.pyplot as plt
 st.title("DevOps Career & Financial Tracker")
 st.subheader("For Mrinal Bhoumick | Starting June 2025")
 
-# 1. Monthly Financial Snapshot
+# Section 1: Monthly Financial Snapshot
 st.header("1. Monthly Financial Snapshot")
+
+# Categorize fixed and variable expenses
+fixed_items = ["Rent (Kolkata)", "Education Loan EMI", "Misc + Home Support", "Monthly SIP", "Brother School Fees"]
+variable_items = ["Fuel", "Home Wifi", "Phone Recharge", "Food & Drinks"]
+
+# Data
 financial_data = {
     "Item": [
         "Net In-Hand Salary", "Rent (Kolkata)", "Fuel", "Education Loan EMI",
-        "Food", "Misc + Home Support", "Monthly SIP", "Remaining Monthly Disposable"
+        "Misc + Home Support", "Monthly SIP", "Home Wifi", "Phone Recharge",
+        "Food & Drinks", "Brother School Fees", "Remaining Monthly Disposable"
     ],
-    "Amount (₹)": [34570, 3000, 1500, 2877, 2000, 10000, 3500, 11693]
+    "Amount (₹)": [34570, 3000, 1500, 2877, 10000, 3500, 600, 450, 3000, 500, 9143]
 }
 df_financial = pd.DataFrame(financial_data)
-st.dataframe(df_financial)
 
-# Pie chart (excluding Remaining Disposable and Net Salary)
+# Show financial data with styling
+def highlight_expense(row):
+    if row["Item"] in fixed_items:
+        return ["background-color: #ffdddd"] * len(row)
+    elif row["Item"] in variable_items:
+        return ["background-color: #ddffdd"] * len(row)
+    else:
+        return [""] * len(row)
+
+st.dataframe(df_financial.style.apply(highlight_expense, axis=1))
+
+# Pie chart
 fig1, ax1 = plt.subplots()
 labels = df_financial["Item"][1:-1]  # exclude Net Salary and Remaining
 sizes = df_financial["Amount (₹)"][1:-1]
@@ -26,7 +43,7 @@ ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
 ax1.axis('equal')
 st.pyplot(fig1)
 
-# 2. Savings & Investment Plan
+# Section 2: Savings & Investment Plan
 st.header("2. Savings & Investment Plan")
 invest_data = {
     "Bucket": [
@@ -39,11 +56,20 @@ invest_data = {
 df_invest = pd.DataFrame(invest_data)
 st.dataframe(df_invest)
 
-# Bar chart for monthly investments
+# Monthly investment chart
 st.subheader("Monthly Investment Allocation")
 st.bar_chart(df_invest.set_index("Bucket")["Monthly (₹)"])
 
-# 3. Milestone Plan
+# Projected Remaining Balance Trend (if SIP increases ₹250 every 3 months)
+st.subheader("Remaining Disposable Trend (12 Months)")
+months = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"]
+sip_series = [3500 + (i//3)*250 for i in range(12)]
+expenses_fixed = 25427 - 3500  # all fixed except SIP
+remaining_series = [34570 - (expenses_fixed + sip) for sip in sip_series]
+trend_df = pd.DataFrame({"Month": months, "Remaining ₹": remaining_series})
+st.line_chart(trend_df.set_index("Month"))
+
+# Section 3: Milestone Plan
 st.header("3. Milestone Plan (June 2025 - May 2026)")
 milestones = pd.DataFrame({
     "Month": ["June", "July–Sept", "Oct", "Nov–Dec", "Jan–Mar", "Apr–May"],
@@ -58,7 +84,7 @@ milestones = pd.DataFrame({
 })
 st.dataframe(milestones)
 
-# 4. Investment Platform Suggestions
+# Section 4: Investment Platforms
 st.header("4. Investment Platform Suggestions")
 platforms = pd.DataFrame({
     "Type": ["Mutual Funds SIP", "Emergency Fund", "Cert Learning", "GenAI Tools", "Budget Tracker"],
@@ -66,7 +92,7 @@ platforms = pd.DataFrame({
 })
 st.table(platforms)
 
-# 5. Career Plan Integration
+# Section 5: Career Plan Integration
 st.header("5. Career Plan Integration")
 career_plan = pd.DataFrame({
     "Action": [
@@ -86,8 +112,24 @@ career_plan = pd.DataFrame({
 })
 st.dataframe(career_plan)
 
-# 6. Final Strategy Summary
-st.header("6. Final Strategy Summary")
+# Section 6: Monthly Goal Tracker (Interactive)
+st.header("6. Monthly Goal Tracker ✅")
+goals = [
+    "Complete AWS DevOps Certification",
+    "Build GenAI Automation Projects",
+    "Update Resume & LinkedIn",
+    "Apply to 10+ Job Roles",
+    "Mock Interviews Scheduled",
+    "Save Emergency Fund ₹30K",
+    "Maintain SIP Consistency",
+    "Laptop Upgrade Plan Initiated"
+]
+
+for goal in goals:
+    st.checkbox(goal)
+
+# Final Strategy Summary
+st.header("7. Final Strategy Summary")
 strategy_points = [
     "Stay in Workmates unless 2x offer",
     "Invest monthly in SIPs and corpus",
@@ -97,4 +139,4 @@ strategy_points = [
 ]
 st.write("\n".join([f"✅ {point}" for point in strategy_points]))
 
-st.success("This app helps you track finances + career & make informed decisions. Good luck, Mrinal!")
+st.success("You’re building a smart roadmap. Stay focused and consistent. Good luck, Mrinal!")
